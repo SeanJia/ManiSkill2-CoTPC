@@ -176,7 +176,6 @@ class HangEnv(MPMBaseEnv):
         )
 
     def _load_actors(self):
-        super()._load_actors()
         builder = self._scene.create_actor_builder()
         builder.add_box_collision(half_size=[0.3, 0.01, 0.01])
         builder.add_box_visual(half_size=[0.3, 0.01, 0.01], color=[1, 0, 0, 1])

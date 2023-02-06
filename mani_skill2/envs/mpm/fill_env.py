@@ -142,7 +142,6 @@ class FillEnv(MPMBaseEnv):
         return CameraConfig("render_camera", p, q, 512, 512, 1, 0.001, 10)
 
     def _load_actors(self):
-        super()._load_actors()
         beaker_file = os.path.join(PACKAGE_ASSET_DIR, "deformable_manipulation", "beaker.glb")
 
         b = self._scene.create_actor_builder()

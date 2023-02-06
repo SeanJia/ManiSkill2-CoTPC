@@ -205,7 +205,6 @@ class WriteEnv(MPMBaseEnv):
         self.agent.robot.set_pose(sapien.Pose([-0.55, 0, 0]))
 
     def _load_actors(self):
-        super()._load_actors()
         b = self._scene.create_actor_builder()
         b.add_box_collision(half_size=[0.15, 0.02, 0.04])
         b.add_box_visual(half_size=[0.15, 0.02, 0.04])

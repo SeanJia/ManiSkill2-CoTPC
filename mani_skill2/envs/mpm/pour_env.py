@@ -99,7 +99,6 @@ class PourEnv(MPMBaseEnv):
         super().__init__(*args, **kwargs)
 
     def _load_actors(self):
-        super()._load_actors()
         bottle_file = os.path.join(PACKAGE_ASSET_DIR, "deformable_manipulation", "bottle.glb")
         beaker_file = os.path.join(PACKAGE_ASSET_DIR, "deformable_manipulation", "beaker.glb")
 

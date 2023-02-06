@@ -132,7 +132,6 @@ class ExcavateEnv(MPMBaseEnv):
         self.vertices_mat = np.column_stack((vertices, ones.T))
 
     def _load_actors(self):
-        super()._load_actors()
         b = self._scene.create_actor_builder()
         b.add_box_collision(half_size=[0.12, 0.02, 0.03])
         b.add_box_visual(half_size=[0.12, 0.02, 0.03])
