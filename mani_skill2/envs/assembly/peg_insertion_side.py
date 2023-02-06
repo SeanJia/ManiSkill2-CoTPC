@@ -51,8 +51,6 @@ class PegInsertionSideEnv(StationaryManipulationEnv):
         return builder.build_static(name)
 
     def _load_actors(self):
-        self._add_ground()
-
         # peg
         # length, radius = 0.1, 0.02
         length = self._episode_rng.uniform(0.075, 0.125)

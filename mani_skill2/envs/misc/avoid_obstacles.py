@@ -110,9 +110,10 @@ class AvoidObstaclesBaseEnv(BaseEnv):
         actor.hide_visual()
         return actor
 
-    def _load_actors(self):
+    def _load_arena(self):
         self._add_ground()
 
+    def _load_actors(self):
         # Add a wall
         if "wall" in self.episode_config:
             cfg = self.episode_config["wall"]

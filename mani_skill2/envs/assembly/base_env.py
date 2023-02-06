@@ -32,6 +32,9 @@ class StationaryManipulationEnv(BaseEnv):
         scene_config.enable_pcm = True
         return scene_config
 
+    def _load_arena(self):
+        self._add_ground()
+
     def _configure_agent(self):
         agent_cls: Type[BaseAgent] = self.SUPPORTED_ROBOTS[self.robot_uid]
         if self.robot_uid == "panda":

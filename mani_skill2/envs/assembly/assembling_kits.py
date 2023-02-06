@@ -102,8 +102,6 @@ class AssemblingKitsEnv(StationaryManipulationEnv):
         return builder.build(f"obj_{object_id:02d}")
 
     def _load_actors(self):
-        self._add_ground()
-
         self.kit = self._load_kit()
         self.obj = self._load_object(self.object_id)
         self._other_objs = [self._load_object(i) for i in self._other_objects_id]

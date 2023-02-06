@@ -26,6 +26,9 @@ class StationaryManipulationEnv(BaseEnv):
         self.robot_init_qpos_noise = robot_init_qpos_noise
         super().__init__(*args, **kwargs)
 
+    def _load_arena(self):
+        self._add_ground()
+
     def _build_cube(
         self,
         half_size,

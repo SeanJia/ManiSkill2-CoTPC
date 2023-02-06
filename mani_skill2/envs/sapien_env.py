@@ -81,12 +81,13 @@ class BaseEnv(gym.Env):
         control_freq: int = 20,
         renderer: str = "sapien",
         renderer_kwargs: dict = None,
-        shader_dir="ibl",
+        shader_dir: str = "ibl",
         render_config: dict = None,
-        enable_shadow=False,
+        enable_shadow: bool = False,
         camera_cfgs: dict = None,
         render_camera_cfgs: dict = None,
-        use_stereo_depth=False,
+        use_stereo_depth: bool = False,
+        arena_name: str = None,
     ):
         # Create SAPIEN engine
         self._engine = sapien.Engine()
@@ -164,7 +165,7 @@ class BaseEnv(gym.Env):
             update_camera_cfgs_from_dict(self._camera_cfgs, camera_cfgs)
         if render_camera_cfgs is not None:
             update_camera_cfgs_from_dict(self._render_camera_cfgs, render_camera_cfgs)
-        
+
         # CAUTION: stereo depth camera is only experimentally supported
         # Update cameras to depth cameras
         if use_stereo_depth:
@@ -173,6 +174,9 @@ class BaseEnv(gym.Env):
 
         # Lighting
         self.enable_shadow = enable_shadow
+
+        # Static scene
+        self.arena_name = arena_name
 
         # NOTE(jigu): `seed` is deprecated in the latest gym.
         # Use a fixed seed to initialize to enhance determinism
@@ -352,6 +356,7 @@ class BaseEnv(gym.Env):
 
         self._setup_scene()
         self._load_agent()
+        self._load_arena()
         self._load_actors()
         self._load_articulations()
         self._setup_cameras()
@@ -378,6 +383,9 @@ class BaseEnv(gym.Env):
             render=render,
             render_material=rend_mtl,
         )
+
+    def _load_arena(self):
+        pass
 
     def _load_actors(self):
         pass

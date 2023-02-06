@@ -101,7 +101,7 @@ class MS1BaseEnv(BaseEnv):
 
         return reconfigure
 
-    def _load_actors(self):
+    def _load_arena(self):
         # Create a collision ground plane
         ground = self._add_ground(render=False)
         # Specify a collision (ignore) group to avoid collision with robot torso
