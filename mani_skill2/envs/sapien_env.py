@@ -360,7 +360,6 @@ class BaseEnv(gym.Env):
         self._load_actors()
         self._load_articulations()
         self._setup_cameras()
-        self._setup_lighting()
 
         if self._viewer is not None:
             self._setup_viewer()
@@ -370,6 +369,8 @@ class BaseEnv(gym.Env):
         self._articulations = self.get_articulations()
 
     def _add_ground(self, altitude=0.0, render=True):
+        if self.arena_name is not None:
+            render = False
         if render:
             rend_mtl = self._renderer.create_material()
             rend_mtl.base_color = [0.06, 0.08, 0.12, 1]
@@ -385,7 +386,60 @@ class BaseEnv(gym.Env):
         )
 
     def _load_arena(self):
-        pass
+        if self.arena_name == "5":
+            builder = self._scene.create_actor_builder()
+            path = "/home/fx/source/sapien-pr/assets/scene5/scene5_v2.glb"
+            builder.add_visual_from_file(path)
+            self.arena = builder.build_kinematic()
+            pose = sapien.Pose([1.1, 0, -0.51], [0.7071068, 0, 0, -0.7071068])
+            self.arena.set_pose(pose)
+            self._scene.set_ambient_light([0.4, 0.4, 0.4])
+            self._scene.add_directional_light(
+                [1, 1, -1], [1, 1, 1], shadow=self.enable_shadow, scale=5, shadow_map_size=2048
+            )
+
+        elif self.arena_name == "1":
+            builder = self._scene.create_actor_builder()
+            path = "/data/RIS_processed/scene1.glb"
+            builder.add_visual_from_file(path)
+            self.arena = builder.build_kinematic()
+            pose = sapien.Pose([-1.18, 0.21, -0.37], [0.7071068, 0, 0, 0.7071068])
+            self.arena.set_pose(pose)
+            self._scene.add_directional_light(
+                [1, 1, -1], [1, 1, 1], shadow=self.enable_shadow, scale=5, shadow_map_size=2048
+            )
+            self._scene.set_ambient_light([0.4, 0.4, 0.4])
+            # self._scene.add_directional_light(
+            #     [0, 0, -1], [1, 1, 1], shadow=self.enable_shadow, scale=5, shadow_map_size=2048
+            # )
+
+        elif self.arena_name == "4":
+            builder = self._scene.create_actor_builder()
+            path = "/data/RIS_processed/scene4.glb"
+            builder.add_visual_from_file(path)
+            self.arena = builder.build_kinematic()
+            pose = sapien.Pose([-4.743, 0.785, -0.761], [0, 0, 0, 1])
+            self.arena.set_pose(pose)
+            self._scene.set_ambient_light([0.3, 0.3, 0.3])
+            self._scene.add_directional_light(
+                [1, 1, -1], [1, 1, 1], shadow=self.enable_shadow, scale=5, shadow_map_size=2048
+            )
+            self._scene.add_directional_light(
+                [0, 0, -1], [1, 1, 1], shadow=self.enable_shadow, scale=5, shadow_map_size=2048
+            )
+
+        elif self.arena_name == "487":
+            builder = self._scene.create_actor_builder()
+            path = "/data/RIS_processed/scene487.glb"
+            builder.add_visual_from_file(path)
+            self.arena = builder.build_kinematic()
+            pose = sapien.Pose([-3.8, 2.73, -0.89], [0.7071068, 0, 0, 0.7071068])
+            self.arena.set_pose(pose)
+            color = np.array([0.9, 0.8, 0.5])
+            self._scene.add_spot_light([-0.2, 0.6, 1.44], [0, 0, -1], 1.5, 2.0, color * 3)
+            self._scene.add_spot_light([-0.2, -1.5, 1.44], [0, 0, -1], 1.5, 2.0, color * 3)
+
+        # self._setup_lighting()
 
     def _load_actors(self):
         pass
@@ -651,7 +705,10 @@ class BaseEnv(gym.Env):
         self.update_render()
         if mode == "human":
             if self._viewer is None:
-                self._viewer = Viewer(self._renderer)
+                sapien.render_config.viewer_shader_dir = "rt"
+                sapien.render_config.rt_samples_per_pixel = 2
+                sapien.render_config.rt_use_denoiser = True
+                self._viewer = Viewer(self._renderer, resolutions=(1920, 1080))
                 self._setup_viewer()
             self._viewer.render()
             return self._viewer

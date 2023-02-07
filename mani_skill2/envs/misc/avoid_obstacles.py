@@ -111,6 +111,7 @@ class AvoidObstaclesBaseEnv(BaseEnv):
         return actor
 
     def _load_arena(self):
+        super()._load_arena()
         self._add_ground()
 
     def _load_actors(self):
@@ -248,4 +249,3 @@ class PandaAvoidObstaclesEnv(AvoidObstaclesBaseEnv):
             self.agent.robot.get_links(), self.agent.config.ee_link_name
         )
         set_articulation_render_material(self.agent.robot, specular=0.9, roughness=0.3)
-    

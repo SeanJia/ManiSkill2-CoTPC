@@ -121,6 +121,7 @@ class MPMBaseEnv(BaseEnv):
         self._articulations = self.get_articulations()
 
     def _load_arena(self):
+        super()._load_arena()
         self._scene.add_ground(altitude=0.0, render=False)
         b = self._scene.create_actor_builder()
         b.add_visual_from_file(str(PACKAGE_ASSET_DIR / "maniskill2-scene-2.glb"))

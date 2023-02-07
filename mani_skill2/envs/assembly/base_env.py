@@ -33,6 +33,7 @@ class StationaryManipulationEnv(BaseEnv):
         return scene_config
 
     def _load_arena(self):
+        super()._load_arena()
         self._add_ground()
 
     def _configure_agent(self):

@@ -43,6 +43,7 @@ class TurnFaucetBaseEnv(BaseEnv):
         super().__init__(*args, **kwargs)
 
     def _load_arena(self):
+        super()._load_arena()
         self._add_ground()
 
     def _configure_agent(self):
