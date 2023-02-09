@@ -15,7 +15,7 @@ class Xarm(BaseAgent):
 
     @classmethod
     def get_default_config(cls):
-        return defaults.PandaDefaultConfig()
+        return defaults.XarmDefaultConfig()
 
     def _after_init(self):
         self.finger1_link: sapien.LinkBase = get_entity_by_name(
