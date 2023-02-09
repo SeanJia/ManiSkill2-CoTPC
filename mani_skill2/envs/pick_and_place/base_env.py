@@ -28,7 +28,6 @@ class StationaryManipulationEnv(BaseEnv):
 
     def __init__(self, *args, robot="panda", robot_init_qpos_noise=0.02, **kwargs):
         self.robot_uid = robot
-        print('!!!!!!!!!!!!!!!!!', self.robot_uid)
         self.robot_init_qpos_noise = robot_init_qpos_noise
         super().__init__(*args, **kwargs)
 
