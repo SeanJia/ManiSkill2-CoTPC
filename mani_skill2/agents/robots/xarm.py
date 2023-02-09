@@ -13,8 +13,9 @@ from mani_skill2.utils.sapien_utils import (
 class Xarm(BaseAgent):
     _config: defaults.XarmDefaultConfig
 
-    def get_default_config(self):
-        return defaults.XarmDefaultConfig()
+    @classmethod
+    def get_default_config(cls):
+        return defaults.PandaDefaultConfig()
 
     def _after_init(self):
         self.finger1_link: sapien.LinkBase = get_entity_by_name(
