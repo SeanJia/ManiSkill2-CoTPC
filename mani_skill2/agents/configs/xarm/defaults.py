@@ -35,7 +35,7 @@ class XarmDefaultConfig:
         self.arm_force_limit = 100
 
         self.gripper_joint_names = [
-            "left_outer_knuckle_joint",
+            "drive_joint", ### left_outer_knuckle_joint
             "right_outer_knuckle_joint",
         ]
         self.gripper_stiffness = 1e3
