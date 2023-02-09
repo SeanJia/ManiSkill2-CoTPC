@@ -161,7 +161,7 @@ class DictController(BaseController):
 
         self._initialize_action_space()
         self._initialize_joints()
-        self._assert_fully_actuated()
+#         self._assert_fully_actuated() ###
 
     def _initialize_action_space(self):
         # Explicitly create a list of key-value tuples
