@@ -42,7 +42,7 @@ class XarmDefaultConfig:
         self.gripper_damping = 1e2
         self.gripper_force_limit = 100
 
-        self.ee_link_name = "link7" ###
+        self.ee_link_name = "link3" ###
 
     @property
     def controllers(self):
