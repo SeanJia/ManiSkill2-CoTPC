@@ -436,41 +436,11 @@
       </geometry>
     </collision>
   </link>
-  <joint name="left_finger_joint" type="revolute">
+  <joint name="left_finger_joint" type="fixed">
     <origin rpy="0 0 0" xyz="0 0.035465 0.042039"/>
     <parent link="left_outer_knuckle"/>
     <child link="left_finger"/>
     <axis xyz="-1 0 0"/>
-    <limit effort="50" lower="0" upper="0.85" velocity="2"/>
-    <mimic joint="drive_joint" multiplier="1" offset="0"/>
-  </joint>
-  <link name="left_inner_knuckle">
-    <inertial>
-      <origin rpy="0 0 0" xyz="1.86600784687907E-06 0.0220467847633621 0.0261334672830885"/>
-      <mass value="0.0230125781256706"/>
-      <inertia ixx="6.09490024271906E-06" ixy="6.06651326160071E-11" ixz="7.19102670500635E-11" iyy="6.01955084375188E-06" iyz="-2.75316812991721E-06" izz="5.07862004479903E-06"/>
-    </inertial>
-    <visual>
-      <origin rpy="0 0 0" xyz="0 0 0"/>
-      <geometry>
-        <mesh filename="package://xarm_gripper/meshes/left_inner_knuckle.STL"/>
-      </geometry>
-      <material name="Silver">
-        <color rgba="0.753 0.753 0.753 1.0"/>
-      </material>
-    </visual>
-    <collision>
-      <origin rpy="0 0 0" xyz="0 0 0"/>
-      <geometry>
-        <mesh filename="package://xarm_gripper/meshes/left_inner_knuckle.STL"/>
-      </geometry>
-    </collision>
-  </link>
-  <joint name="left_inner_knuckle_joint" type="revolute">
-    <origin rpy="0 0 0" xyz="0 0.02 0.074098"/>
-    <parent link="xarm_gripper_base_link"/>
-    <child link="left_inner_knuckle"/>
-    <axis xyz="1 0 0"/>
     <limit effort="50" lower="0" upper="0.85" velocity="2"/>
     <mimic joint="drive_joint" multiplier="1" offset="0"/>
   </joint>
@@ -526,41 +496,11 @@
       </geometry>
     </collision>
   </link>
-  <joint name="right_finger_joint" type="revolute">
+  <joint name="right_finger_joint" type="fixed">
     <origin rpy="0 0 0" xyz="0 -0.035465 0.042039"/>
     <parent link="right_outer_knuckle"/>
     <child link="right_finger"/>
     <axis xyz="1 0 0"/>
-    <limit effort="50" lower="0" upper="0.85" velocity="2"/>
-    <mimic joint="drive_joint" multiplier="1" offset="0"/>
-  </joint>
-  <link name="right_inner_knuckle">
-    <inertial>
-      <origin rpy="0 0 0" xyz="1.866E-06 -0.022047 0.026133"/>
-      <mass value="0.023013"/>
-      <inertia ixx="6.0949E-06" ixy="-6.0665E-11" ixz="7.191E-11" iyy="6.0197E-06" iyz="2.7531E-06" izz="5.0784E-06"/>
-    </inertial>
-    <visual>
-      <origin rpy="0 0 0" xyz="0 0 0"/>
-      <geometry>
-        <mesh filename="package://xarm_gripper/meshes/right_inner_knuckle.STL"/>
-      </geometry>
-      <material name="Silver">
-        <color rgba="0.753 0.753 0.753 1.0"/>
-      </material>
-    </visual>
-    <collision>
-      <origin rpy="0 0 0" xyz="0 0 0"/>
-      <geometry>
-        <mesh filename="package://xarm_gripper/meshes/right_inner_knuckle.STL"/>
-      </geometry>
-    </collision>
-  </link>
-  <joint name="right_inner_knuckle_joint" type="revolute">
-    <origin rpy="0 0 0" xyz="0 -0.02 0.074098"/>
-    <parent link="xarm_gripper_base_link"/>
-    <child link="right_inner_knuckle"/>
-    <axis xyz="-1 0 0"/>
     <limit effort="50" lower="0" upper="0.85" velocity="2"/>
     <mimic joint="drive_joint" multiplier="1" offset="0"/>
   </joint>
@@ -589,16 +529,10 @@
   <gazebo reference="left_finger">
     <selfCollide>false</selfCollide>
   </gazebo>
-  <gazebo reference="left_inner_knuckle">
-    <selfCollide>false</selfCollide>
-  </gazebo>
   <gazebo reference="right_outer_knuckle">
     <selfCollide>false</selfCollide>
   </gazebo>
   <gazebo reference="right_finger">
-    <selfCollide>false</selfCollide>
-  </gazebo>
-  <gazebo reference="right_inner_knuckle">
     <selfCollide>false</selfCollide>
   </gazebo>
   <gazebo>
@@ -606,10 +540,6 @@
       <arm>
         <arm_name>xarm_gripper</arm_name>
         <palm_link>link7</palm_link>
-        <gripper_link>left_inner_knuckle</gripper_link>
-        <gripper_link>right_inner_knuckle</gripper_link>
-        <!-- <gripper_link>${prefix}left_outer_knuckle</gripper_link>
-          <gripper_link>${prefix}right_outer_knuckle</gripper_link> -->
         <gripper_link>left_finger</gripper_link>
         <gripper_link>right_finger</gripper_link>
       </arm>
@@ -638,20 +568,6 @@
   </gazebo>
   <gazebo>
     <!-- old version -->
-    <plugin filename="libroboticsgroup_gazebo_mimic_joint_plugin.so" name="left_inner_knuckle_jointmimic_joint_plugin">
-      <!-- new version -->
-      <!-- <plugin name="${name_prefix}mimic_joint_plugin" filename="libroboticsgroup_upatras_gazebo_mimic_joint_plugin.so"> -->
-      <joint>drive_joint</joint>
-      <mimicJoint>left_inner_knuckle_joint</mimicJoint>
-      <multiplier>1.0</multiplier>
-      <offset>0</offset>
-      <sensitiveness>0.0</sensitiveness>
-      <!-- if absolute difference between setpoint and process value is below this threshold, do nothing; 0.0 = disable [rad] -->
-      <maxEffort>10.0</maxEffort>
-    </plugin>
-  </gazebo>
-  <gazebo>
-    <!-- old version -->
     <plugin filename="libroboticsgroup_gazebo_mimic_joint_plugin.so" name="right_outer_knuckle_jointmimic_joint_plugin">
       <!-- new version -->
       <!-- <plugin name="${name_prefix}mimic_joint_plugin" filename="libroboticsgroup_upatras_gazebo_mimic_joint_plugin.so"> -->
@@ -671,20 +587,6 @@
       <!-- <plugin name="${name_prefix}mimic_joint_plugin" filename="libroboticsgroup_upatras_gazebo_mimic_joint_plugin.so"> -->
       <joint>drive_joint</joint>
       <mimicJoint>right_finger_joint</mimicJoint>
-      <multiplier>1.0</multiplier>
-      <offset>0</offset>
-      <sensitiveness>0.0</sensitiveness>
-      <!-- if absolute difference between setpoint and process value is below this threshold, do nothing; 0.0 = disable [rad] -->
-      <maxEffort>10.0</maxEffort>
-    </plugin>
-  </gazebo>
-  <gazebo>
-    <!-- old version -->
-    <plugin filename="libroboticsgroup_gazebo_mimic_joint_plugin.so" name="right_inner_knuckle_jointmimic_joint_plugin">
-      <!-- new version -->
-      <!-- <plugin name="${name_prefix}mimic_joint_plugin" filename="libroboticsgroup_upatras_gazebo_mimic_joint_plugin.so"> -->
-      <joint>drive_joint</joint>
-      <mimicJoint>right_inner_knuckle_joint</mimicJoint>
       <multiplier>1.0</multiplier>
       <offset>0</offset>
       <sensitiveness>0.0</sensitiveness>
