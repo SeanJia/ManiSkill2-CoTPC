@@ -92,6 +92,15 @@ class StationaryManipulationEnv(BaseEnv):
             )
             self.agent.reset(qpos)
             self.agent.robot.set_pose(Pose([-0.562, 0, 0]))
+        elif self.robot_uid == "xarm7":
+            qpos = np.array(
+                [0, np.pi / 6, 0, np.pi / 3, 0, np.pi / 2, -np.pi / 2, 0, 0]
+            )
+            qpos[:-2] += self._episode_rng.normal(
+                0, self.robot_init_qpos_noise, len(qpos) - 2
+            )
+            self.agent.reset(qpos)
+            self.agent.robot.set_pose(Pose([-0.562, 0, 0]))
         else:
             raise NotImplementedError(self.robot_uid)
 

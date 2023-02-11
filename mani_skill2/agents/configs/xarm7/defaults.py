@@ -8,15 +8,15 @@ class Xarm7DefaultConfig:
     def __init__(self) -> None:
         self.urdf_path = "{PACKAGE_ASSET_DIR}/descriptions/xarm7_with_gripper.urdf"
         self.urdf_config = dict(
-            materials=dict(
+            _materials=dict(
                 gripper=dict(static_friction=2.0, dynamic_friction=2.0, restitution=0.0)
             ),
-            links=dict(
+            link=dict(
                 left_finger=dict(
-                    material="gripper", patch_radius=0.1, min_patch_radius=0.1 ###
+                    material="gripper", patch_radius=0.1, min_patch_radius=0.1
                 ),
                 right_finger=dict(
-                    material="gripper", patch_radius=0.1, min_patch_radius=0.1 ###
+                    material="gripper", patch_radius=0.1, min_patch_radius=0.1
                 ),
             ),
         )
@@ -105,7 +105,7 @@ class Xarm7DefaultConfig:
 
         controller_configs = dict(
             pd_joint_pos=dict(arm=arm_pd_joint_pos, gripper=gripper_pd_joint_pos),
-            arm_pd_joint_delta_pos=dict(
+            pd_joint_delta_pos=dict(
                 arm=arm_pd_joint_delta_pos, gripper=gripper_pd_joint_pos
             ),
             pd_ee_delta_pos=dict(arm=arm_pd_ee_delta_pos, gripper=gripper_pd_joint_pos),
