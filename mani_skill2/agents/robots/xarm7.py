@@ -48,3 +48,14 @@ class Xarm7(BaseAgent):
         )
 
         return all([lflag, rflag])
+
+    @staticmethod
+    def build_grasp_pose(approaching, closing, center):
+        assert np.abs(1 - np.linalg.norm(approaching)) < 1e-3
+        assert np.abs(1 - np.linalg.norm(closing)) < 1e-3
+        assert np.abs(approaching @ closing) <= 1e-3
+        ortho = np.cross(approaching, closing)
+        T = np.eye(4)
+        T[:3, :3] = np.stack([approaching, closing, ortho], axis=1)
+        T[:3, 3] = center
+        return sapien.Pose.from_transformation_matrix(T)

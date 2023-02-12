@@ -7,15 +7,18 @@ import trimesh
 
 from mani_skill2.envs.pick_and_place.stack_cube import StackCubeEnv
 from mani_skill2.utils.trimesh_utils import get_actor_mesh
+from mani_skill2.utils.common import normalize_vector
+
+from matplotlib import pyplot as plt
 
 
 ASSET_PATH = '/home/zjia/Research/inter_seq/ManiSkill2-CoTPC/mani_skill2/assets'
 
 def main():
     env: StackCubeEnv = gym.make(
-        "StackCube-v0", obs_mode="none", control_mode="pd_joint_pos"
+        "StackCube-v0", obs_mode="none", control_mode="pd_joint_pos", robot='xarm7',  # xarm7
     )
-    solve(env, seed=87, debug=True, vis=True)
+    solve(env, seed=87, debug=True, vis=False)
     env.close()
 
 def get_actor_obb(actor: sapien.Actor, to_world_frame=True, vis=False):
@@ -111,8 +114,12 @@ def solve(env: StackCubeEnv, seed=None, debug=False, vis=False):
     # -------------------------------------------------------------------------- #
     # Utilities
     # -------------------------------------------------------------------------- #
-    def render_wait():
+    def render_wait(idx):
         if not vis or not debug:
+            print('wait...')
+            img = env.render(mode="cameras")
+            plt.imsave(
+                f'/home/zjia/Research/inter_seq/ManiSkill2-CoTPC/mp_demos/{idx}.png')
             return
         print("Press [c] to continue")
         viewer = env.render("human")
@@ -166,15 +173,18 @@ def solve(env: StackCubeEnv, seed=None, debug=False, vis=False):
     # Planner
     # -------------------------------------------------------------------------- #
     joint_names = [joint.get_name() for joint in env.agent.robot.get_active_joints()]
+    # print(joint_names)
+    # exit()
     planner = pymp.Planner(
-        urdf=f"{ASSET_PATH}/descriptions/xarm7_with_gripper.urdf",
+        urdf=f"{ASSET_PATH}/descriptions/xarm7_with_gripper.urdf", # xarm7_with_gripper
         user_joint_names=joint_names,
         srdf=f"{ASSET_PATH}/descriptions/xarm7_with_gripper.srdf",
-        ee_link_name="link7",
+        ee_link_name="link_tcp", # link_tcp
         base_pose=env.agent.robot.pose,
         joint_vel_limits=0.5,
         joint_acc_limits=0.5,
         timestep=env.control_timestep,
+        use_convex=False,
     )
     # exit()
 
@@ -189,6 +199,7 @@ def solve(env: StackCubeEnv, seed=None, debug=False, vis=False):
     # planner.scene.addBox(env.box_half_size * 2, env.cubeA.pose, name="cubeA")
     planner.scene.addBox(env.box_half_size * 2, env.cubeB.pose, name="cubeB")
     planner.scene.addBox([1, 1, 0.01], [0, 0, -0.01], name="ground")
+    render_wait(1)
 
     # -------------------------------------------------------------------------- #
     # Grasp pose
@@ -205,6 +216,7 @@ def solve(env: StackCubeEnv, seed=None, debug=False, vis=False):
     # Search a valid pose
     angles = np.arange(0, np.pi * 2 / 3, np.pi / 2)
     angles = np.repeat(angles, 2)
+    print(angles)
     angles[1::2] *= -1
     for angle in angles:
         delta_pose = sapien.Pose(q=euler2quat(0, 0, angle))
@@ -215,8 +227,8 @@ def solve(env: StackCubeEnv, seed=None, debug=False, vis=False):
         if len(ik_results) == 0:
             continue
         # Avoid joint limits issue (hardcode for panda)
-        if np.abs(ik_results[0, -3]) > 2:
-            continue
+        # if np.abs(ik_results[0, -3]) > 2:
+            # continue
         grasp_pose = grasp_pose2
         break
     else:
