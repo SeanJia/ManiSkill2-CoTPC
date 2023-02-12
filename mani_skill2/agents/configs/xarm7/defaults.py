@@ -42,7 +42,7 @@ class Xarm7DefaultConfig:
         self.gripper_damping = 1e2
         self.gripper_force_limit = 100
 
-        self.ee_link_name = "link7"
+        self.ee_link_name = "link_tcp"
 
     @property
     def controllers(self):
@@ -129,7 +129,7 @@ class Xarm7DefaultConfig:
                 fov=1.5707,
                 near=0.01,
                 far=10,
-                actor_uid="link7",
+                actor_uid="link_tcp",
                 hide_link=False,
             ),
         ]
