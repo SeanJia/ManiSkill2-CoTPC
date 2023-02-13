@@ -2,6 +2,8 @@ from copy import deepcopy
 
 from mani_skill2.agents.controllers import *
 from mani_skill2.sensors.camera import CameraConfig
+from transforms3d.euler import euler2quat
+import numpy as np
 
 
 class Xarm7DefaultConfig:
@@ -38,8 +40,8 @@ class Xarm7DefaultConfig:
             "drive_joint",  # "left_outer_knuckle_joint"
             "right_outer_knuckle_joint",
         ]
-        self.gripper_stiffness = 1e3
-        self.gripper_damping = 1e2
+        self.gripper_stiffness = 1000 #1e3
+        self.gripper_damping = 3000 #1e2
         self.gripper_force_limit = 100
 
         self.ee_link_name = "link_tcp"
@@ -96,8 +98,8 @@ class Xarm7DefaultConfig:
         # However, tune a good force limit to have a good mimic behavior
         gripper_pd_joint_pos = PDJointPosMimicControllerConfig(
             self.gripper_joint_names,
-            0,
-            0.068 + 0.01,
+            0.0,
+            1.0, #0.068 + 0.01,
             self.gripper_stiffness,
             self.gripper_damping,
             self.gripper_force_limit,
@@ -122,8 +124,8 @@ class Xarm7DefaultConfig:
         return [
             CameraConfig(
                 uid="hand_camera",
-                p=[0.0, 0.0, 0.0],
-                q=[1, 0, 0, 0],
+                p=[0.0, 0.0, -0.03],
+                q=euler2quat(0, np.pi / 2, 0),
                 width=128,
                 height=128,
                 fov=1.5707,

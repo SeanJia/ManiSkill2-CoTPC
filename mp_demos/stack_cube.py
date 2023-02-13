@@ -3,6 +3,7 @@ import numpy as np
 import pymp
 import sapien.core as sapien
 from transforms3d.euler import euler2quat
+import transforms3d.quaternions as Q 
 import trimesh
 
 from mani_skill2.envs.pick_and_place.stack_cube import StackCubeEnv
@@ -16,7 +17,7 @@ ASSET_PATH = '/home/zjia/Research/inter_seq/ManiSkill2-CoTPC/mani_skill2/assets'
 
 def main():
     env: StackCubeEnv = gym.make(
-        "StackCube-v0", obs_mode="none", control_mode="pd_joint_pos", robot='xarm7',  # xarm7
+        "StackCube-v0", obs_mode="none", control_mode="pd_joint_pos", robot='xarm7', ### xarm7
     )
     solve(env, seed=87, debug=True, vis=False)
     env.close()
@@ -114,12 +115,12 @@ def solve(env: StackCubeEnv, seed=None, debug=False, vis=False):
     # -------------------------------------------------------------------------- #
     # Utilities
     # -------------------------------------------------------------------------- #
-    def render_wait(idx):
+    def render_wait():
         if not vis or not debug:
             print('wait...')
-            img = env.render(mode="cameras")
-            plt.imsave(
-                f'/home/zjia/Research/inter_seq/ManiSkill2-CoTPC/mp_demos/{idx}.png')
+            # img = env.render(mode="cameras")
+            # plt.imsave(
+                # f'/home/zjia/Research/inter_seq/ManiSkill2-CoTPC/mp_demos/{idx}.png')
             return
         print("Press [c] to continue")
         viewer = env.render("human")
@@ -149,6 +150,7 @@ def solve(env: StackCubeEnv, seed=None, debug=False, vis=False):
             else:
                 action = np.hstack([qpos, gripper_action])
             _, _, done, info = env.step(action)
+            print(info)
             if vis:
                 env.render()
 
@@ -164,8 +166,11 @@ def solve(env: StackCubeEnv, seed=None, debug=False, vis=False):
             action = np.hstack([qpos, np.zeros_like(qpos), gripper_action])
         else:
             action = np.hstack([qpos, gripper_action])
+        print(env.agent.robot.get_qpos(), '////////////////')
         for _ in range(t):
             _, _, done, info = env.step(action)
+            print(env.agent.robot.get_qpos())
+            print(info)
             if vis:
                 env.render()
 
@@ -173,10 +178,12 @@ def solve(env: StackCubeEnv, seed=None, debug=False, vis=False):
     # Planner
     # -------------------------------------------------------------------------- #
     joint_names = [joint.get_name() for joint in env.agent.robot.get_active_joints()]
-    # print(joint_names)
-    # exit()
+
+    env.agent.robot.set_qpos(
+        [0.009281,    0.3754012,   0.02281073, 1.0904256,  -0.02396192, 0.8235, -1.575119,    0.,        0.        ])
+
     planner = pymp.Planner(
-        urdf=f"{ASSET_PATH}/descriptions/xarm7_with_gripper.urdf", # xarm7_with_gripper
+        urdf=f"{ASSET_PATH}/descriptions/xarm7_with_gripper.urdf", ### xarm7_with_gripper
         user_joint_names=joint_names,
         srdf=f"{ASSET_PATH}/descriptions/xarm7_with_gripper.srdf",
         ee_link_name="link_tcp", # link_tcp
@@ -186,10 +193,12 @@ def solve(env: StackCubeEnv, seed=None, debug=False, vis=False):
         timestep=env.control_timestep,
         use_convex=False,
     )
+    # print([link.get_name() for link in env.agent.robot.get_links()])
+    # print(env.agent.robot.get_links()[-1].get_pose())
     # exit()
 
-    OPEN_GRIPPER_POS = 1
-    CLOSE_GRIPPER_POS = -1  ###
+    OPEN_GRIPPER_POS = -0.3
+    CLOSE_GRIPPER_POS = 1  ###
     FINGER_LENGTH = 0.025
 
     # -------------------------------------------------------------------------- #
@@ -199,7 +208,6 @@ def solve(env: StackCubeEnv, seed=None, debug=False, vis=False):
     # planner.scene.addBox(env.box_half_size * 2, env.cubeA.pose, name="cubeA")
     planner.scene.addBox(env.box_half_size * 2, env.cubeB.pose, name="cubeB")
     planner.scene.addBox([1, 1, 0.01], [0, 0, -0.01], name="ground")
-    render_wait(1)
 
     # -------------------------------------------------------------------------- #
     # Grasp pose
@@ -212,27 +220,46 @@ def solve(env: StackCubeEnv, seed=None, debug=False, vis=False):
     )
     closing, center = grasp_info["closing"], grasp_info["center"]
     grasp_pose = env.agent.build_grasp_pose(approaching, closing, center)
+    # target_pose = env.agent.robot.get_links()[-1].get_pose()
+    print(grasp_pose, '!!!!!!!!!!!!!!!')
+    q = Q.qmult(grasp_pose.q, euler2quat(0, np.pi / 2, 0))
+    p = [0.125428, -0.0698869, -0.05] #####
+    # grasp_pose = sapien.Pose(p=grasp_pose.p, q=q)
+    grasp_pose = sapien.Pose(p=p, q=q)
+    # q = [0.568717, 0.420191, 0.568717, -0.420191]
+    # grasp_pose = sapien.Pose(p=p, q=q)
+    print(grasp_pose)
+    print(env.cubeA.get_pose())
+    # exit()
+
+    ik_results = planner.compute_CLIK(
+        grasp_pose, env.agent.robot.get_qpos(), 1, seed=seed
+    )
+    assert len(ik_results) > 0
+    print(ik_results)
+    # exit()
 
     # Search a valid pose
-    angles = np.arange(0, np.pi * 2 / 3, np.pi / 2)
-    angles = np.repeat(angles, 2)
-    print(angles)
-    angles[1::2] *= -1
-    for angle in angles:
-        delta_pose = sapien.Pose(q=euler2quat(0, 0, angle))
-        grasp_pose2 = grasp_pose * delta_pose
-        ik_results = planner.compute_CLIK(
-            grasp_pose2, env.agent.robot.get_qpos(), 1, seed=seed
-        )
-        if len(ik_results) == 0:
-            continue
-        # Avoid joint limits issue (hardcode for panda)
-        # if np.abs(ik_results[0, -3]) > 2:
-            # continue
-        grasp_pose = grasp_pose2
-        break
-    else:
-        print("Fail to find a valid grasp pose")
+    # angles = np.arange(0, np.pi * 2 / 3, np.pi / 2)
+    # angles = np.repeat(angles, 2)
+    # print(angles)
+    # angles[1::2] *= -1
+    # for angle in angles:
+    #     delta_pose = sapien.Pose(q=euler2quat(0, 0, angle))
+    #     grasp_pose2 = grasp_pose * delta_pose
+    #     ik_results = planner.compute_CLIK(
+    #         grasp_pose2, env.agent.robot.get_qpos(), 1, seed=seed
+    #     )
+    #     print(grasp_pose2, 'pose')
+    #     if len(ik_results) == 0:
+    #         continue
+    #     # Avoid joint limits issue (hardcode for panda)
+    #     # if np.abs(ik_results[0, -3]) > 2:
+    #         # continue
+    #     grasp_pose = grasp_pose2
+    #     break
+    # else:
+    #     print("Fail to find a valid grasp pose")
 
     render_wait()
 
@@ -251,10 +278,15 @@ def solve(env: StackCubeEnv, seed=None, debug=False, vis=False):
     plan = planner.plan_screw(grasp_pose, env.agent.robot.get_qpos())
     execute_plan(plan, OPEN_GRIPPER_POS)
     render_wait()
+    print(env.agent.robot.get_qpos())
 
     # Close gripper
-    execute_plan2(plan, CLOSE_GRIPPER_POS, 10)
+    execute_plan2(plan, CLOSE_GRIPPER_POS, 20)
     render_wait()
+    print(env.agent.robot.get_qpos())
+    print(env.agent.robot.get_links()[-1].get_pose())
+
+    exit()
 
     # -------------------------------------------------------------------------- #
     # Lift
