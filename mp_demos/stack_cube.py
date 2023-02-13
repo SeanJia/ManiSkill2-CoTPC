@@ -16,10 +16,21 @@ from matplotlib import pyplot as plt
 ASSET_PATH = '/home/zjia/Research/inter_seq/ManiSkill2-CoTPC/mani_skill2/assets'
 
 def main():
-    env: StackCubeEnv = gym.make(
-        "StackCube-v1", obs_mode="none", control_mode="pd_joint_pos", robot='xarm7', ### xarm7
-    )
-    solve(env, seed=1, debug=False, vis=False)
+    env = gym.make(
+        "StackCube-v1", obs_mode="none", control_mode="pd_joint_pos", robot='xarm7')
+    count = 0
+    size = 50
+    info = solve(env, seed=46, debug=False, vis=False)
+    print(info)
+    exit()
+    for seed in range(size):
+        info = solve(env, seed=seed, debug=False, vis=False)
+        if info['success']: 
+            print(seed, 'Good')
+            count += 1
+        else:
+            print(seed, 'Bad')
+    print(count / size)
     env.close()
 
 def get_actor_obb(actor: sapien.Actor, to_world_frame=True, vis=False):
@@ -113,7 +124,7 @@ def print_info(stage_name, env):
     print()
 
 def solve(env: StackCubeEnv, seed=None, debug=False, vis=False):
-    env.reset(seed=seed)
+    env.reset(seed=seed, reconfigure=True)
     assert env.control_mode in ["pd_joint_pos", "pd_joint_pos_vel"], env.control_mode
     if debug:
         pymp.logger.setLevel("DEBUG")
@@ -161,7 +172,7 @@ def solve(env: StackCubeEnv, seed=None, debug=False, vis=False):
             if vis:
                 env.render()
 
-    def execute_plan2(plan, gripper_action, t):
+    def execute_plan2(plan, gripper_action, t, debug=False):
         """Gripper action at the last step of arm plan."""
         nonlocal done, info
 
@@ -176,8 +187,8 @@ def solve(env: StackCubeEnv, seed=None, debug=False, vis=False):
         for i in range(t):
             _, _, done, info = env.step(action)
             # print(env.agent.robot.get_qpos())
-            # if i == t-1:
-            #     print(info)
+            if debug:
+                print(info)
             if vis:
                 env.render()
 
@@ -254,13 +265,12 @@ def solve(env: StackCubeEnv, seed=None, debug=False, vis=False):
     # -------------------------------------------------------------------------- #
     planner.scene.disableCollision("cubeB")
     plan = planner.plan_screw(grasp_pose, env.agent.robot.get_qpos())
-    execute_plan(plan, OPEN_GRIPPER_POS)
+    execute_plan(plan, OPEN_GRIPPER_POS, debug=True)
     # print_info('grasp', env)
 
     # Close gripper
-    execute_plan2(plan, CLOSE_GRIPPER_POS, 20)
-    print(info)
-    # print_info('close', env)
+    execute_plan2(plan, CLOSE_GRIPPER_POS, 20, debug=True)
+    print_info('close', env)
     # exit()
 
     # -------------------------------------------------------------------------- #
@@ -269,8 +279,7 @@ def solve(env: StackCubeEnv, seed=None, debug=False, vis=False):
     lift_pose = sapien.Pose([0, 0, 0.1]) * grasp_pose
     plan = planner.plan_screw(lift_pose, env.agent.robot.get_qpos())
     execute_plan(plan, CLOSE_GRIPPER_POS, debug=True)
-    print(info)
-    # print_info('lift', env)
+    print_info('lift', env)
     # exit()
 
     # -------------------------------------------------------------------------- #
@@ -280,14 +289,13 @@ def solve(env: StackCubeEnv, seed=None, debug=False, vis=False):
     offset = goal_pos - env.cubeA.pose.p
     align_pose = sapien.Pose(lift_pose.p + offset, lift_pose.q)
     plan = planner.plan_screw(align_pose, env.agent.robot.get_qpos())
-    execute_plan(plan, CLOSE_GRIPPER_POS) #CLOSE_GRIPPER_POS)
+    execute_plan(plan, CLOSE_GRIPPER_POS)
     # print_info('stack', env)
     # exit()
 
     # release
     execute_plan2(plan, OPEN_GRIPPER_POS, 10)
 
-    print(info)
     return info
 
 
