@@ -40,8 +40,8 @@ class Xarm7DefaultConfig:
             "drive_joint",  # "left_outer_knuckle_joint"
             "right_outer_knuckle_joint",
         ]
-        self.gripper_stiffness = 1000 #1e3
-        self.gripper_damping = 3000 #1e2
+        self.gripper_stiffness = 10 #1e3
+        self.gripper_damping = 5 #1e2
         self.gripper_force_limit = 100
 
         self.ee_link_name = "link_tcp"
@@ -98,8 +98,8 @@ class Xarm7DefaultConfig:
         # However, tune a good force limit to have a good mimic behavior
         gripper_pd_joint_pos = PDJointPosMimicControllerConfig(
             self.gripper_joint_names,
-            0.0,
-            1.0, #0.068 + 0.01,
+            -0.4,
+            0.4, #0.068 + 0.01,
             self.gripper_stiffness,
             self.gripper_damping,
             self.gripper_force_limit,

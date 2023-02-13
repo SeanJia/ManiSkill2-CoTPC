@@ -230,28 +230,29 @@ class StackCubeEnvV2(StationaryManipulationEnv):
     def _load_actors(self):
         self._add_ground(render=self.bg_name is None)
 
-        self.box_half_size = np.float32([0.025] * 3)
+        size = self._episode_rng.uniform(0.025, 0.03, [1])[0]
+        self.box_half_size = np.float32([size] * 3)
         self.cubeA = self._build_cube(self.box_half_size, color=(1, 0, 0), name="cubeA")
         self.cubeB = self._build_cube(
             self.box_half_size, color=(0, 1, 1), name="cubeB", static=False
         )
 
     def _initialize_actors(self):
-        xy = self._episode_rng.uniform(-0.1, 0.1, [2])
-        region = [[-0.1, -0.2], [0.1, 0.2]]
-        sampler = UniformSampler(region, self._episode_rng)
-        radius = np.linalg.norm(self.box_half_size[:2]) + 0.001
+        xy = self._episode_rng.uniform(-0.05, 0.05, [2])
         cubeA_xy = xy #+ sampler.sample(radius, 100)
-        cubeB_xy = xy + sampler.sample(radius, 100, verbose=False)
+        xy = self._episode_rng.uniform(-0.05, 0.05, [2]) + np.array([0.1, 0.15])
+        cubeB_xy = xy #+ sampler.sample(radius, 100, verbose=False)
 
-        cubeA_quat = euler2quat(0, 0, 0.1) # 0, 2 * np.pi))
-        cubeB_quat = euler2quat(0, 0, self._episode_rng.uniform(0, 2 * np.pi))
+        cubeA_quat = euler2quat(0, 0, self._episode_rng.uniform(-np.pi/12, np.pi/12))
+        cubeB_quat = euler2quat(0, 0, self._episode_rng.uniform(-np.pi/12, np.pi/12) + np.pi / 6)
         z = self.box_half_size[2]
         cubeA_pose = sapien.Pose([cubeA_xy[0], cubeA_xy[1], z], cubeA_quat)
         cubeB_pose = sapien.Pose([cubeB_xy[0], cubeB_xy[1], z], cubeB_quat)
 
         self.cubeA.set_pose(cubeA_pose)
         self.cubeB.set_pose(cubeB_pose)
+        print(self.cubeA.get_pose(), 'cubeA')
+        print(self.cubeB.get_pose(), 'cubeB')
 
     def _get_obs_extra(self):
         obs = OrderedDict(
@@ -264,6 +265,7 @@ class StackCubeEnvV2(StationaryManipulationEnv):
                 tcp_to_cubeA_pos=self.cubeA.pose.p - self.tcp.pose.p,
                 tcp_to_cubeB_pos=self.cubeB.pose.p - self.tcp.pose.p,
                 cubeA_to_cubeB_pos=self.cubeB.pose.p - self.cubeA.pose.p,
+                half_box_size=self.box_half_size[0],
             )
         return obs
 
