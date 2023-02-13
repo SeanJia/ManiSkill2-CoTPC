@@ -197,9 +197,6 @@ def solve(env: StackCubeEnv, seed=None, debug=False, vis=False):
     # -------------------------------------------------------------------------- #
     joint_names = [joint.get_name() for joint in env.agent.robot.get_active_joints()]
 
-    env.agent.robot.set_qpos(
-        [0.009281,    0.3754012,   0.02281073, 1.0904256,  -0.02396192, 0.8235, -1.575119,    0.,        0.        ])
-
     planner = pymp.Planner(
         urdf=f"{ASSET_PATH}/descriptions/xarm7_with_gripper.urdf", ### xarm7_with_gripper
         user_joint_names=joint_names,
@@ -244,12 +241,24 @@ def solve(env: StackCubeEnv, seed=None, debug=False, vis=False):
     grasp_pose = sapien.Pose(p=p, q=q)
     # exit()
 
+    # print(env.agent.robot.get_links()[-1].get_pose(), '.............................')
+    # env.agent.robot.set_qpos(
+        # [ -0.11596307 ,-0.07239753  ,0.11580194,  0.69099305,  0.01207749 , 0.76294791,  -3.15068519 , 0.    ,      0.        ])
+
+    # env.agent.robot.set_qpos(
+        # [0.009281,    0.3754012,   0.02281073, 1.0904256,  -0.02396192, 0.8235, -1.575119,    0.,        0.        ])
+    # print(env.agent.robot.get_qpos())
+
+# [-0.0763505, 0.0132541, 0.0369471], [-0.0347915, 0.687281, 0.724361, -0.0416716]
+    # test = sapien.Pose(p=[-0.1, -0.1, 0.1], q=[-0.0347915, 0.687281, 0.724361, -0.0416716])#euler2quat(0, np.pi, 0)) #[-0.334312, 0.625015, 0.609417, -0.355249])
+    # test = sapien.Pose(p=[0.4, 0.0, 0.1], q=euler2quat(0, np.pi, 0)) #[-0.334312, 0.625015, 0.609417, -0.355249])
     ik_results = planner.compute_CLIK(
         grasp_pose, env.agent.robot.get_qpos(), 1, seed=seed
     )
+    
     assert len(ik_results) > 0
-    # print(ik_results)
-    # exit()
+    print(ik_results)
+    exit()
 
     # -------------------------------------------------------------------------- #
     # Reach
@@ -266,7 +275,8 @@ def solve(env: StackCubeEnv, seed=None, debug=False, vis=False):
     planner.scene.disableCollision("cubeB")
     plan = planner.plan_screw(grasp_pose, env.agent.robot.get_qpos())
     execute_plan(plan, OPEN_GRIPPER_POS, debug=True)
-    # print_info('grasp', env)
+    print_info('grasp', env)
+    exit()
 
     # Close gripper
     execute_plan2(plan, CLOSE_GRIPPER_POS, 20, debug=True)

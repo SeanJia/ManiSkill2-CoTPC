@@ -222,6 +222,7 @@ class StackCubeEnv(StationaryManipulationEnv):
 
 @register_env("StackCube-v1", max_episode_steps=200)
 class StackCubeEnvV2(StationaryManipulationEnv):
+    
     def _get_default_scene_config(self):
         scene_config = super()._get_default_scene_config()
         scene_config.enable_pcm = True
