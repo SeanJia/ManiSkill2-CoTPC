@@ -124,7 +124,7 @@ class Xarm7DefaultConfig:
         return [
             CameraConfig(
                 uid="hand_camera",
-                p=[-1, 0.0, -0.1],
+                p=[-0.1, 0.0, -0.1],
                 q=euler2quat(0, 0, 0),
                 width=128,
                 height=128,
