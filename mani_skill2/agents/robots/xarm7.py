@@ -41,10 +41,10 @@ class Xarm7(BaseAgent):
         rangle = compute_angle_between(rdirection, rimpulse)
 
         lflag = (
-            np.linalg.norm(limpulse) >= min_impulse and np.rad2deg(langle) <= max_angle
+            np.linalg.norm(limpulse) >= min_impulse #and np.rad2deg(langle) <= max_angle
         )
         rflag = (
-            np.linalg.norm(rimpulse) >= min_impulse and np.rad2deg(rangle) <= max_angle
+            np.linalg.norm(rimpulse) >= min_impulse #and np.rad2deg(rangle) <= max_angle
         )
 
         return all([lflag, rflag])

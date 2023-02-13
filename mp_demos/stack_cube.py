@@ -17,7 +17,7 @@ ASSET_PATH = '/home/zjia/Research/inter_seq/ManiSkill2-CoTPC/mani_skill2/assets'
 
 def main():
     env: StackCubeEnv = gym.make(
-        "StackCube-v0", obs_mode="none", control_mode="pd_joint_pos", robot='xarm7', ### xarm7
+        "StackCube-v1", obs_mode="none", control_mode="pd_joint_pos", robot='xarm7', ### xarm7
     )
     solve(env, seed=87, debug=True, vis=False)
     env.close()
@@ -197,7 +197,7 @@ def solve(env: StackCubeEnv, seed=None, debug=False, vis=False):
     # print(env.agent.robot.get_links()[-1].get_pose())
     # exit()
 
-    OPEN_GRIPPER_POS = -0.3
+    OPEN_GRIPPER_POS = -1
     CLOSE_GRIPPER_POS = 1  ###
     FINGER_LENGTH = 0.025
 
@@ -223,11 +223,9 @@ def solve(env: StackCubeEnv, seed=None, debug=False, vis=False):
     # target_pose = env.agent.robot.get_links()[-1].get_pose()
     print(grasp_pose, '!!!!!!!!!!!!!!!')
     q = Q.qmult(grasp_pose.q, euler2quat(0, np.pi / 2, 0))
-    p = [0.125428, -0.0698869, -0.05] #####
-    # grasp_pose = sapien.Pose(p=grasp_pose.p, q=q)
+    p = grasp_pose.p
+    p[-1] = 0# -0.02
     grasp_pose = sapien.Pose(p=p, q=q)
-    # q = [0.568717, 0.420191, 0.568717, -0.420191]
-    # grasp_pose = sapien.Pose(p=p, q=q)
     print(grasp_pose)
     print(env.cubeA.get_pose())
     # exit()
@@ -266,10 +264,16 @@ def solve(env: StackCubeEnv, seed=None, debug=False, vis=False):
     # -------------------------------------------------------------------------- #
     # Reach
     # -------------------------------------------------------------------------- #
-    reach_pose = grasp_pose * sapien.Pose([0, 0, -0.05])
+    reach_pose = grasp_pose * sapien.Pose([0, 0, -0.1])
     plan = planner.plan_screw(reach_pose, env.agent.robot.get_qpos())
+    # print(reach_pose)
+    # print(grasp_pose)
     execute_plan(plan, OPEN_GRIPPER_POS)
     render_wait()
+    print(env.agent.robot.get_qpos())
+    print(env.agent.robot.get_links()[-1].get_pose())
+    print(env.cubeA.get_pose())
+    # exit()
 
     # -------------------------------------------------------------------------- #
     # Grasp
@@ -279,14 +283,15 @@ def solve(env: StackCubeEnv, seed=None, debug=False, vis=False):
     execute_plan(plan, OPEN_GRIPPER_POS)
     render_wait()
     print(env.agent.robot.get_qpos())
+    print(env.agent.robot.get_links()[-1].get_pose())
+    print(env.cubeA.get_pose())
 
     # Close gripper
     execute_plan2(plan, CLOSE_GRIPPER_POS, 20)
     render_wait()
     print(env.agent.robot.get_qpos())
     print(env.agent.robot.get_links()[-1].get_pose())
-
-    exit()
+    print(env.cubeA.get_pose())
 
     # -------------------------------------------------------------------------- #
     # Lift
@@ -295,6 +300,9 @@ def solve(env: StackCubeEnv, seed=None, debug=False, vis=False):
     plan = planner.plan_screw(lift_pose, env.agent.robot.get_qpos())
     execute_plan(plan, CLOSE_GRIPPER_POS)
     render_wait()
+    print(env.agent.robot.get_qpos())
+    print(env.agent.robot.get_links()[-1].get_pose())
+    print(env.cubeA.get_pose())
 
     # -------------------------------------------------------------------------- #
     # Stack
@@ -305,6 +313,10 @@ def solve(env: StackCubeEnv, seed=None, debug=False, vis=False):
     plan = planner.plan_screw(align_pose, env.agent.robot.get_qpos())
     execute_plan(plan, CLOSE_GRIPPER_POS)
     render_wait()
+    print(env.agent.robot.get_qpos())
+    print(env.agent.robot.get_links()[-1].get_pose())
+    print(env.cubeA.get_pose())
+    exit()
 
     # release
     execute_plan2(plan, OPEN_GRIPPER_POS, 10)
