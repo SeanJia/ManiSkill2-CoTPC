@@ -19,7 +19,7 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     author="ManiSkill2 contributors",
-    url="https://github.com/haosulab/ManiSkill2",
+    url="https://github.com/SeanJia/ManiSkill2",
     packages=find_packages(
         include=["mani_skill2*", "warp_maniskill*"],
         exclude=["warp_maniskill.warp.tests"],
