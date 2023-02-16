@@ -94,13 +94,12 @@ class StationaryManipulationEnv(BaseEnv):
             self.agent.robot.set_pose(Pose([-0.562, 0, 0]))
         elif self.robot_uid == "xarm7":
             qpos = np.array(
-                [0.009281,    0.3754012,   0.02281073, 1.0904256,  -0.02396192, 0.8235, -1.575119,    0.,        0.        ]
-            )
+                [ -0.01458031 , 0.12161022 , 0.02125499 , 1.10301746 ,-0.01627146 , 1.08944771,  -1.60832374 , 0.    ,      0.        ])
             qpos[:-2] += self._episode_rng.normal(
                 0, self.robot_init_qpos_noise, len(qpos) - 2
             )
             self.agent.reset(qpos)
-            self.agent.robot.set_pose(Pose([-0.6, 0, 0]))
+            self.agent.robot.set_pose(Pose([-0.562, 0, 0]))
         # # self.agent.robot.set_qpos(
         #     # [-0.51619451 ,-0.8128044, -0.3101701,  0.45533507, -0.23557332 ,
         #     #  1.25219163,  -0.6580690 , 0., 0.])

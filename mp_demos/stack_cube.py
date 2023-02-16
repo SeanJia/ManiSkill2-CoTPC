@@ -19,10 +19,10 @@ def main():
     env = gym.make(
         "StackCube-v1", obs_mode="none", control_mode="pd_joint_pos", robot='xarm7')
     count = 0
-    size = 50
-    info = solve(env, seed=46, debug=False, vis=False)
-    print(info)
-    exit()
+    size = 100
+    # info = solve(env, seed=46, debug=False, vis=False)
+    # print(info)
+    # exit()
     for seed in range(size):
         info = solve(env, seed=seed, debug=False, vis=False)
         if info['success']: 
@@ -250,20 +250,20 @@ def solve(env: StackCubeEnv, seed=None, debug=False, vis=False):
     # print(env.agent.robot.get_qpos())
 
 # [-0.0763505, 0.0132541, 0.0369471], [-0.0347915, 0.687281, 0.724361, -0.0416716]
-    # test = sapien.Pose(p=[-0.1, -0.1, 0.1], q=[-0.0347915, 0.687281, 0.724361, -0.0416716])#euler2quat(0, np.pi, 0)) #[-0.334312, 0.625015, 0.609417, -0.355249])
+    # test = sapien.Pose(p=[-0.1, 0.0, 0.15], q=[-0.0347915, 0.687281, 0.724361, -0.0416716])#euler2quat(0, np.pi, 0)) #[-0.334312, 0.625015, 0.609417, -0.355249])
     # test = sapien.Pose(p=[0.4, 0.0, 0.1], q=euler2quat(0, np.pi, 0)) #[-0.334312, 0.625015, 0.609417, -0.355249])
     ik_results = planner.compute_CLIK(
         grasp_pose, env.agent.robot.get_qpos(), 1, seed=seed
     )
     
     assert len(ik_results) > 0
-    print(ik_results)
-    exit()
+    # print(ik_results)
+    # exit()
 
     # -------------------------------------------------------------------------- #
     # Reach
     # -------------------------------------------------------------------------- #
-    reach_pose = grasp_pose * sapien.Pose([0, 0, -0.1])
+    reach_pose = grasp_pose * sapien.Pose([0, 0, -0.2])
     plan = planner.plan_screw(reach_pose, env.agent.robot.get_qpos())
     execute_plan(plan, OPEN_GRIPPER_POS)
     # print_info('reach', env)
@@ -274,13 +274,13 @@ def solve(env: StackCubeEnv, seed=None, debug=False, vis=False):
     # -------------------------------------------------------------------------- #
     planner.scene.disableCollision("cubeB")
     plan = planner.plan_screw(grasp_pose, env.agent.robot.get_qpos())
-    execute_plan(plan, OPEN_GRIPPER_POS, debug=True)
-    print_info('grasp', env)
-    exit()
+    execute_plan(plan, OPEN_GRIPPER_POS, debug=False)
+    # print_info('grasp', env)
+    # exit()
 
     # Close gripper
-    execute_plan2(plan, CLOSE_GRIPPER_POS, 20, debug=True)
-    print_info('close', env)
+    execute_plan2(plan, CLOSE_GRIPPER_POS, 20, debug=False)
+    # print_info('close', env)
     # exit()
 
     # -------------------------------------------------------------------------- #
@@ -288,8 +288,8 @@ def solve(env: StackCubeEnv, seed=None, debug=False, vis=False):
     # -------------------------------------------------------------------------- #
     lift_pose = sapien.Pose([0, 0, 0.1]) * grasp_pose
     plan = planner.plan_screw(lift_pose, env.agent.robot.get_qpos())
-    execute_plan(plan, CLOSE_GRIPPER_POS, debug=True)
-    print_info('lift', env)
+    execute_plan(plan, CLOSE_GRIPPER_POS, debug=False)
+    # print_info('lift', env)
     # exit()
 
     # -------------------------------------------------------------------------- #

@@ -222,7 +222,7 @@ class StackCubeEnv(StationaryManipulationEnv):
 
 @register_env("StackCube-v1", max_episode_steps=200)
 class StackCubeEnvV2(StationaryManipulationEnv):
-    
+
     def _get_default_scene_config(self):
         scene_config = super()._get_default_scene_config()
         scene_config.enable_pcm = True
@@ -230,7 +230,7 @@ class StackCubeEnvV2(StationaryManipulationEnv):
 
     def _load_actors(self):
         self._add_ground(render=self.bg_name is None)
-        size = self._episode_rng.uniform(0.025, 0.03, [1])[0]
+        size = self._episode_rng.uniform(0.02, 0.025, [1])[0]
         self.box_half_size = np.float32([size] * 3)
         self.cubeA = self._build_cube(self.box_half_size, color=(1, 0, 0), name="cubeA")
         self.cubeB = self._build_cube(
