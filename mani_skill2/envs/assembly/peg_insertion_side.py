@@ -11,7 +11,7 @@ from mani_skill2.utils.sapien_utils import hex2rgba, look_at, vectorize_pose
 from .base_env import StationaryManipulationEnv
 
 
-@register_env("PegInsertionSide-v0", max_episode_steps=200)
+@register_env("PegInsertionSide-v0", max_episode_steps=None)
 class PegInsertionSideEnv(StationaryManipulationEnv):
     _clearance = 0.003
 
@@ -45,6 +45,7 @@ class PegInsertionSideEnv(StationaryManipulationEnv):
         mat.roughness = 0.5
         mat.specular = 0.5
 
+        assert False, '/////'
         for (half_size, pose) in zip(half_sizes, poses):
             builder.add_box_collision(pose, half_size)
             builder.add_box_visual(pose, half_size, material=mat)
