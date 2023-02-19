@@ -20,7 +20,7 @@ def main():
         "StackCube-v1", obs_mode="none", control_mode="pd_joint_pos", robot='xarm7')
     count = 0
     size = 50
-    info = solve(env, seed=46, debug=False, vis=False)
+    info = solve(env, seed=0, debug=False, vis=False)
     print(info)
     exit()
     for seed in range(size):
@@ -257,8 +257,8 @@ def solve(env: StackCubeEnv, seed=None, debug=False, vis=False):
     )
     
     assert len(ik_results) > 0
-    print(ik_results)
-    exit()
+    # print(ik_results)
+    # exit()
 
     # -------------------------------------------------------------------------- #
     # Reach
@@ -276,7 +276,7 @@ def solve(env: StackCubeEnv, seed=None, debug=False, vis=False):
     plan = planner.plan_screw(grasp_pose, env.agent.robot.get_qpos())
     execute_plan(plan, OPEN_GRIPPER_POS, debug=True)
     print_info('grasp', env)
-    exit()
+    # exit()
 
     # Close gripper
     execute_plan2(plan, CLOSE_GRIPPER_POS, 20, debug=True)
