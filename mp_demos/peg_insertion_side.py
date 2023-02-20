@@ -18,9 +18,9 @@ def main():
         "PegInsertionSide-v1", obs_mode="none", control_mode="pd_joint_pos", robot='xarm7')
     count = 0
     size = 50
-    info = solve(env, seed=0, debug=False, vis=False)
-    print(info)
-    exit()
+    # info = solve(env, seed=0, debug=False, vis=False)
+    # print(info)
+    # exit()
     for seed in range(size):
         info = solve(env, seed=seed, debug=False, vis=False)
         if info['success']: 
@@ -226,9 +226,9 @@ def solve(env, seed=None, debug=False, vis=False):
     closing, center = grasp_info["closing"], grasp_info["center"]
     grasp_pose = env.agent.build_grasp_pose(approaching, closing, center)
     # Need to grasp close to the end to avoid collision between hand and box
-    # Thickness of panda hand is 0.0633
-    # offset = sapien.Pose([-0.035, 0, 0])
-    # grasp_pose = grasp_pose * offset
+    # print('bef', grasp_pose)
+    grasp_pose = grasp_pose * sapien.Pose([0, 0, 0.045])
+    # print('aft', grasp_pose)
 
     q = Q.qmult(grasp_pose.q, euler2quat(0, np.pi / 2, 0))
     p = grasp_pose.p
@@ -260,6 +260,7 @@ def solve(env, seed=None, debug=False, vis=False):
     planner.scene.disableCollision("scene")
     plan = planner.plan_screw(grasp_pose, env.agent.robot.get_qpos())
     execute_plan(plan, OPEN_GRIPPER_POS)
+    # print(env.agent.robot.get_qpos())
     # print_info('grasp', env)
     # exit()
 

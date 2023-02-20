@@ -360,13 +360,13 @@ class PegInsertionSideSim2RealEnv(StationaryManipulationEnv):
     def _initialize_actors(self):
         xy = self._episode_rng.uniform([-0.1, -0.3], [0.1, 0])
         pos = np.hstack([xy, self.peg_half_size[2]])
-        ori = np.pi / 2 + self._episode_rng.uniform(-np.pi / 3, np.pi / 3)
+        ori = np.pi / 8 + self._episode_rng.uniform(-np.pi / 16, np.pi / 16)
         quat = euler2quat(0, 0, ori)
         self.peg.set_pose(Pose(pos, quat))
 
-        xy = self._episode_rng.uniform([-0.05, 0.2], [0.05, 0.4])
+        xy = self._episode_rng.uniform([0.03, 0.28], [0.05, 0.3])
         pos = np.hstack([xy, self.peg_half_size[0]])
-        ori = np.pi / 2 + self._episode_rng.uniform(-np.pi / 8, np.pi / 8)
+        ori = np.pi / 2 + self._episode_rng.uniform(-np.pi / 16, np.pi / 16)
         quat = euler2quat(0, 0, ori)
         self.box.set_pose(Pose(pos, quat))
 
