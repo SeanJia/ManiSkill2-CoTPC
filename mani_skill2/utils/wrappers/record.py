@@ -272,6 +272,7 @@ class RecordEpisode(gym.Wrapper):
                 dtype=action_space.dtype,
             )
             dones = np.empty(shape=(0,), dtype=bool)
+            infos = np.empty(shape=(0,), dtype=bool)
         else:
             # NOTE(jigu): The format is designed to be compatible with ManiSkill-Learn (pyrl).
             # Record transitions (ignore the first padded values during reset)
@@ -279,12 +280,27 @@ class RecordEpisode(gym.Wrapper):
             # NOTE(jigu): "dones" need to stand for task success excluding time limit.
             dones = np.stack([x["info"]["success"] for x in self._episode_data[1:]])
 
+            infos = []
+            for x in self._episode_data[1:]:
+                x_info = x['info']
+                curr_info = []
+                for name in sorted(list(x_info.keys())):
+                    if name in ['success', 'elapsed_steps', 'TimeLimit.truncated']: continue
+                    assert x_info[name] in [False, True] #####
+                    curr_info.append(x_info[name])
+                curr_info.append(x_info['success'])  # Append `success` at the end.
+                infos.append(curr_info)
+            infos = np.stack(infos)
+
+        rewards = np.array([x['r'] for x in self._episode_data[1:]], dtype=np.float32)
         # Only support array like states now
         env_states = np.stack([x["s"] for x in self._episode_data])
 
         # Dump
         group.create_dataset("actions", data=actions, dtype=np.float32)
         group.create_dataset("success", data=dones, dtype=bool)
+        group.create_dataset("rewards", data=rewards, dtype=np.float32)
+        group.create_dataset("infos", data=infos, dtype=bool)
         if self.init_state_only:
             group.create_dataset("env_init_state", data=env_states[0], dtype=np.float32)
         else:

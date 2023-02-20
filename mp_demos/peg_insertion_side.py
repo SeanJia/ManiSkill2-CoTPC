@@ -15,12 +15,12 @@ ASSET_PATH = '/home/zjia/Research/inter_seq/ManiSkill2-CoTPC/mani_skill2/assets'
 
 def main():
     env = gym.make(
-        "StackCube-v1", obs_mode="none", control_mode="pd_joint_pos", robot='xarm7')
+        "PegInsertionSide-v1", obs_mode="none", control_mode="pd_joint_pos", robot='xarm7')
     count = 0
     size = 50
-    # info = solve(env, seed=4, debug=False, vis=False)
-    # print(info)
-    # exit()
+    info = solve(env, seed=0, debug=False, vis=False)
+    print(info)
+    exit()
     for seed in range(size):
         info = solve(env, seed=seed, debug=False, vis=False)
         if info['success']: 
@@ -31,17 +31,6 @@ def main():
     print(count / size)
     env.close()
 
-def get_actor_obb(actor: sapien.Actor, to_world_frame=True, vis=False):
-    mesh = get_actor_mesh(actor, to_world_frame=to_world_frame)
-    assert mesh is not None, "can not get actor mesh for {}".format(actor)
-
-    obb: trimesh.primitives.Box = mesh.bounding_box_oriented
-
-    if vis:
-        obb.visual.vertex_colors = (255, 0, 0, 10)
-        trimesh.Scene([mesh, obb]).show()
-
-    return obb
 
 def compute_grasp_info_by_obb(
     obb: trimesh.primitives.Box,
@@ -207,9 +196,6 @@ def solve(env, seed=None, debug=False, vis=False):
         timestep=env.control_timestep,
         use_convex=False,
     )
-    # print([link.get_name() for link in env.agent.robot.get_links()])
-    # print(env.agent.robot.get_links()[-1].get_pose())
-    # exit()
 
     OPEN_GRIPPER_POS = -1
     CLOSE_GRIPPER_POS = 1 
@@ -219,8 +205,8 @@ def solve(env, seed=None, debug=False, vis=False):
     # Collision
     # -------------------------------------------------------------------------- #
     # Add collision obstacles
-    # planner.scene.addBox(env.box_half_size * 2, env.cubeA.pose, name="cubeA")
-    planner.scene.addBox(env.box_half_size * 2, env.cubeB.pose, name="cubeB")
+    scene_pcd = env.gen_scene_pcd(1000)
+    planner.scene.addOctree(scene_pcd, 0.0025, name="scene")
     planner.scene.addBox([1, 1, 0.01], [0, 0, -0.01], name="ground")
 
     # -------------------------------------------------------------------------- #
@@ -228,17 +214,26 @@ def solve(env, seed=None, debug=False, vis=False):
     # -------------------------------------------------------------------------- #
     approaching = (0, 0, -1)
     target_closing = env.tcp.pose.to_transformation_matrix()[:3, 1]
-    obb = get_actor_obb(env.cubeA)
+    peg_size = np.array(env.peg_half_size) * 2
+    peg_init_pose = env.peg.pose
+    obb = trimesh.primitives.Box(
+        extents=peg_size,
+        transform=peg_init_pose.to_transformation_matrix(),
+    )
     grasp_info = compute_grasp_info_by_obb(
         obb, approaching, target_closing, depth=FINGER_LENGTH
     )
     closing, center = grasp_info["closing"], grasp_info["center"]
     grasp_pose = env.agent.build_grasp_pose(approaching, closing, center)
+    # Need to grasp close to the end to avoid collision between hand and box
+    # Thickness of panda hand is 0.0633
+    # offset = sapien.Pose([-0.035, 0, 0])
+    # grasp_pose = grasp_pose * offset
+
     q = Q.qmult(grasp_pose.q, euler2quat(0, np.pi / 2, 0))
     p = grasp_pose.p
     p[-1] = 0 # -0.02
     grasp_pose = sapien.Pose(p=p, q=q)
-    # exit()
 
     # [-0.0763505, 0.0132541, 0.0369471], [-0.0347915, 0.687281, 0.724361, -0.0416716]
     # test = sapien.Pose(p=[-0.1, -0.1, 0.1], q=[-0.0347915, 0.687281, 0.724361, -0.0416716])#euler2quat(0, np.pi, 0)) #[-0.334312, 0.625015, 0.609417, -0.355249])
@@ -246,7 +241,6 @@ def solve(env, seed=None, debug=False, vis=False):
     ik_results = planner.compute_CLIK(
         grasp_pose, env.agent.robot.get_qpos(), 1, seed=seed
     )
-    
     assert len(ik_results) > 0
     # print(ik_results)
     # exit()
@@ -263,9 +257,9 @@ def solve(env, seed=None, debug=False, vis=False):
     # -------------------------------------------------------------------------- #
     # Grasp
     # -------------------------------------------------------------------------- #
-    planner.scene.disableCollision("cubeB")
+    planner.scene.disableCollision("scene")
     plan = planner.plan_screw(grasp_pose, env.agent.robot.get_qpos())
-    execute_plan(plan, OPEN_GRIPPER_POS, debug=False)
+    execute_plan(plan, OPEN_GRIPPER_POS)
     # print_info('grasp', env)
     # exit()
 
@@ -275,33 +269,38 @@ def solve(env, seed=None, debug=False, vis=False):
     # exit()
 
     # -------------------------------------------------------------------------- #
-    # Lift
+    # Align with the hole
     # -------------------------------------------------------------------------- #
-    lift_pose = sapien.Pose([0, 0, 0.1]) * grasp_pose
-    plan = planner.plan_screw(lift_pose, env.agent.robot.get_qpos())
+    insert_pose = env.goal_pose * peg_init_pose.inv() * grasp_pose
+    offset = sapien.Pose([-0.15, 0, 0])
+    pre_insert_pose = insert_pose * offset
+    plan = planner.plan_screw(pre_insert_pose, env.agent.robot.get_qpos())
     execute_plan(plan, CLOSE_GRIPPER_POS, debug=False)
-    # print_info('lift', env)
+    # print_info('close', env)
     # exit()
 
     # -------------------------------------------------------------------------- #
-    # Stack
+    # Refine 
     # -------------------------------------------------------------------------- #
-    goal_pos = env.cubeB.pose.p + [0, 0, env.box_half_size[2] * 2]
-    # offset = goal_pos - env.cubeA.pose.p
-    # align_pose = sapien.Pose([0, 0, 0.1]) * sapien.Pose(lift_pose.p + offset, lift_pose.q)
-    offset = lift_pose.p - env.cubeA.pose.p
-    # align_pose = sapien.Pose([0, 0, 0.02]) * 
-    align_pose = sapien.Pose(goal_pos + offset, lift_pose.q) 
-    # print(align_pose, 'align')
-    # print_info('stack', env)
-    plan = planner.plan_screw(align_pose, env.agent.robot.get_qpos())
+    delta_pose = env.goal_pose.transform(offset) * env.peg.pose.inv()
+    # Method 1: assume initial grasp pose is accurate
+    pre_insert_pose = delta_pose * pre_insert_pose
+    insert_pose = delta_pose * insert_pose
+    # Method 2: assume current grasp pose is stable
+    # NOTE(jigu): I find that the error between tcp pose and pre_insert_pose is in fact larger
+    # pre_insert_pose =  delta_pose * env.tcp.pose
+    # insert_pose =  pre_insert_pose * offset.inv()
+
+    plan = planner.plan_screw(pre_insert_pose, env.agent.robot.get_qpos())
     execute_plan(plan, CLOSE_GRIPPER_POS, debug=False)
-    # print_info('stack', env)
-    # print(align_pose, 'align')
+    # print_info('close', env)
     # exit()
 
-    # release
-    execute_plan2(plan, OPEN_GRIPPER_POS, 10)
+    # Insert
+    plan = planner.plan_screw(insert_pose, env.agent.robot.get_qpos())
+    execute_plan(plan, CLOSE_GRIPPER_POS, debug=False)
+    # print_info('close', env)
+    # exit()
 
     return info
 

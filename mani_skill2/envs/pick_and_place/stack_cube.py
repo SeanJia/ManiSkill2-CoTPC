@@ -221,7 +221,7 @@ class StackCubeEnv(StationaryManipulationEnv):
 
 
 @register_env("StackCube-v1", max_episode_steps=200)
-class StackCubeEnvV2(StationaryManipulationEnv):
+class StackCubeSim2RealEnv(StationaryManipulationEnv):
     
     def _get_default_scene_config(self):
         scene_config = super()._get_default_scene_config()
@@ -238,16 +238,16 @@ class StackCubeEnvV2(StationaryManipulationEnv):
         )
 
     def _initialize_actors(self):
-        xy = self._episode_rng.uniform(-0.01, 0.01, [2])
-        xy += np.array([0.0156264, 0.0454901])
+        xy = self._episode_rng.uniform(-0.015, 0.015, [2])
+        xy += np.array([-0.02, 0.0])
         cubeA_xy = xy #+ sampler.sample(radius, 100)
-        xy = self._episode_rng.uniform(-0.01, 0.01, [2])
-        xy += np.array([0.147088, 0.109783])
+        xy = self._episode_rng.uniform(-0.015, 0.015, [2])
+        xy += np.array([0.1, 0.13]) # 0.16
         cubeB_xy = xy #+ sampler.sample(radius, 100, verbose=False)
 
-        cubeA_quat = euler2quat(0, 0, self._episode_rng.uniform(-np.pi/12, np.pi/12))
+        cubeA_quat = euler2quat(0, 0, self._episode_rng.uniform(-np.pi/8, np.pi/8))
         cubeA_quat += np.array([0.997698, 0, 0, -0.0678207])
-        cubeB_quat = euler2quat(0, 0, self._episode_rng.uniform(-np.pi/12, np.pi/12) + np.pi / 6)
+        cubeB_quat = euler2quat(0, 0, self._episode_rng.uniform(-np.pi/8, np.pi/8) + np.pi / 6)
         cubeB_quat += np.array([0.936491, 0, 0, 0.350692])
         z = self.box_half_size[2]
         cubeA_pose = sapien.Pose([cubeA_xy[0], cubeA_xy[1], z], cubeA_quat)
@@ -255,9 +255,6 @@ class StackCubeEnvV2(StationaryManipulationEnv):
 
         self.cubeA.set_pose(cubeA_pose)
         self.cubeB.set_pose(cubeB_pose)
-        print(self.cubeA.get_pose(), 'cubeA')
-        print(self.cubeB.get_pose(), 'cubeB')
-        print(self.box_half_size[0])
 
     def _get_obs_extra(self):
         obs = OrderedDict(

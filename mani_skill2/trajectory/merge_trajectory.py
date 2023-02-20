@@ -32,6 +32,7 @@ def merge_h5(output_path: str, traj_paths, recompute_id=True):
             assert str(env_info) == str(_env_info), traj_path
 
         # Merge
+        assert len(json_data['episodes']) == len(h5_file)
         for ep in json_data["episodes"]:
             episode_id = ep["episode_id"]
             traj_id = f"traj_{episode_id}"
