@@ -358,13 +358,13 @@ class PegInsertionSideSim2RealEnv(StationaryManipulationEnv):
         self.box_hole_radius = inner_radius
 
     def _initialize_actors(self):
-        xy = self._episode_rng.uniform([-0.1, -0.3], [0.1, 0])
+        xy = self._episode_rng.uniform([-0.01, -0.11], [0.01, -0.09])
         pos = np.hstack([xy, self.peg_half_size[2]])
         ori = np.pi / 8 + self._episode_rng.uniform(-np.pi / 16, np.pi / 16)
         quat = euler2quat(0, 0, ori)
         self.peg.set_pose(Pose(pos, quat))
 
-        xy = self._episode_rng.uniform([0.03, 0.28], [0.05, 0.3])
+        xy = self._episode_rng.uniform([0.03, 0.23], [0.05, 0.25])
         pos = np.hstack([xy, self.peg_half_size[0]])
         ori = np.pi / 2 + self._episode_rng.uniform(-np.pi / 16, np.pi / 16)
         quat = euler2quat(0, 0, ori)
@@ -423,7 +423,6 @@ class PegInsertionSideSim2RealEnv(StationaryManipulationEnv):
                 peg_pose=vectorize_pose(self.peg.pose),
                 peg_half_size=self.peg_half_size,
                 box_hole_pose=vectorize_pose(self.box_hole_pose),
-                box_hole_radius=self.box_hole_radius,
             )
         return obs
 

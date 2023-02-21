@@ -267,7 +267,7 @@ class StackCubeSim2RealEnv(StationaryManipulationEnv):
                 tcp_to_cubeA_pos=self.cubeA.pose.p - self.tcp.pose.p,
                 tcp_to_cubeB_pos=self.cubeB.pose.p - self.tcp.pose.p,
                 cubeA_to_cubeB_pos=self.cubeB.pose.p - self.cubeA.pose.p,
-                half_box_size=self.box_half_size[0],
+                box_half_size=self.box_half_size[0],
             )
         return obs
 
