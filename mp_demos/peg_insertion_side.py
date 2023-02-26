@@ -248,7 +248,7 @@ def solve(env, seed=None, debug=False, vis=False):
     # -------------------------------------------------------------------------- #
     # Reach
     # -------------------------------------------------------------------------- #
-    reach_pose = grasp_pose * sapien.Pose([0, 0, -0.1])
+    reach_pose = grasp_pose * sapien.Pose([0, 0, -0.09])
     plan = planner.plan_screw(reach_pose, env.agent.robot.get_qpos())
     execute_plan(plan, OPEN_GRIPPER_POS)
     # print_info('reach', env)

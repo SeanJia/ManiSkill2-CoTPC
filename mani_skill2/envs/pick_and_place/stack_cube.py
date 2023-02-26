@@ -239,16 +239,14 @@ class StackCubeSim2RealEnv(StationaryManipulationEnv):
 
     def _initialize_actors(self):
         xy = self._episode_rng.uniform(-0.015, 0.015, [2])
-        xy += np.array([-0.02, 0.0])
-        cubeA_xy = xy #+ sampler.sample(radius, 100)
+        cubeA_xy = xy + np.array([-0.25, -0.05])
         xy = self._episode_rng.uniform(-0.015, 0.015, [2])
-        xy += np.array([0.1, 0.13]) # 0.16
-        cubeB_xy = xy #+ sampler.sample(radius, 100, verbose=False)
+        cubeB_xy = xy + np.array([-0.18, 0.1])
 
         cubeA_quat = euler2quat(0, 0, self._episode_rng.uniform(-np.pi/8, np.pi/8))
-        cubeA_quat += np.array([0.997698, 0, 0, -0.0678207])
-        cubeB_quat = euler2quat(0, 0, self._episode_rng.uniform(-np.pi/8, np.pi/8) + np.pi / 6)
-        cubeB_quat += np.array([0.936491, 0, 0, 0.350692])
+        cubeA_quat += euler2quat(0, 0, np.pi/4)
+        cubeB_quat = euler2quat(0, 0, self._episode_rng.uniform(-np.pi/8, np.pi/8))
+        cubeB_quat += euler2quat(0, 0, np.pi/4)
         z = self.box_half_size[2]
         cubeA_pose = sapien.Pose([cubeA_xy[0], cubeA_xy[1], z], cubeA_quat)
         cubeB_pose = sapien.Pose([cubeB_xy[0], cubeB_xy[1], z], cubeB_quat)

@@ -318,7 +318,7 @@ class PegInsertionSideSim2RealEnv(StationaryManipulationEnv):
         self._add_ground(render=self.bg_name is None)
 
         # peg
-        length = 0.075 # self._episode_rng.uniform(0.075, 0.125)
+        length = 0.075
         radius = self._episode_rng.uniform(0.025, 0.03)
         builder = self._scene.create_actor_builder()
         builder.add_box_collision(half_size=[length, radius, radius])
@@ -358,13 +358,13 @@ class PegInsertionSideSim2RealEnv(StationaryManipulationEnv):
         self.box_hole_radius = inner_radius
 
     def _initialize_actors(self):
-        xy = self._episode_rng.uniform([-0.01, -0.11], [0.01, -0.09])
+        xy = self._episode_rng.uniform([-0.21, -0.21], [-0.19, -0.19])
         pos = np.hstack([xy, self.peg_half_size[2]])
         ori = np.pi / 8 + self._episode_rng.uniform(-np.pi / 16, np.pi / 16)
         quat = euler2quat(0, 0, ori)
         self.peg.set_pose(Pose(pos, quat))
 
-        xy = self._episode_rng.uniform([0.03, 0.23], [0.05, 0.25])
+        xy = self._episode_rng.uniform([-0.17, 0.13], [-0.15, 0.15])
         pos = np.hstack([xy, self.peg_half_size[0]])
         ori = np.pi / 2 + self._episode_rng.uniform(-np.pi / 16, np.pi / 16)
         quat = euler2quat(0, 0, ori)
@@ -383,9 +383,9 @@ class PegInsertionSideSim2RealEnv(StationaryManipulationEnv):
             self.agent.reset(qpos)
             self.agent.robot.set_pose(Pose([-0.615, 0, 0]))
         elif self.robot_uid == "xarm7":
-            qpos = np.array(
-                [0.009281, 0.3754012, 0.02281073, 1.0904256, 
-                -0.02396192, 0.8235, -1.575119, 0., 0.]
+            qpos = np.array([
+                0.00230258, -0.13116917, 0.00457352, 0.96137981, 
+                -0.01203489, 1.20056413, -1.61154483, 0., 0.]
             )
             qpos[:-2] += self._episode_rng.normal(
                 0, self.robot_init_qpos_noise, len(qpos) - 2

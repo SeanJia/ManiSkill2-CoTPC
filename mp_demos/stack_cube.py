@@ -18,7 +18,15 @@ def main():
         "StackCube-v1", obs_mode="none", control_mode="pd_joint_pos", robot='xarm7')
     count = 0
     size = 50
-    # info = solve(env, seed=4, debug=False, vis=False)
+    # info = solve(env, seed=0, debug=False, vis=False)
+    # env.reset(seed=0, reconfigure=True)
+    # all_actions = np.load('/home/zjia/Research/inter_seq/stackcube_mp_actions.npy')
+    # for action in all_actions:
+        # _, _, _, info = env.step(action)
+        # print(action)
+        # print(env.agent.robot.get_qpos())
+        # assert np.allclose(action[:7], env.agent.robot.get_qpos()[:7], rtol=0.05, atol=0.01)
+        # print()
     # print(info)
     # exit()
     for seed in range(size):
@@ -123,6 +131,7 @@ def print_info(stage_name, env):
     print()
 
 def solve(env, seed=None, debug=False, vis=False):
+    # all_actions = []
     env.reset(seed=seed, reconfigure=True)
     assert env.control_mode in ["pd_joint_pos", "pd_joint_pos_vel"], env.control_mode
     if debug:
@@ -165,6 +174,7 @@ def solve(env, seed=None, debug=False, vis=False):
                 action = action = np.hstack([qpos, qvel, gripper_action])
             else:
                 action = np.hstack([qpos, gripper_action])
+            # all_actions.append(action)
             _, _, done, info = env.step(action)
             if debug:
                 print(info)
@@ -184,6 +194,7 @@ def solve(env, seed=None, debug=False, vis=False):
         else:
             action = np.hstack([qpos, gripper_action])
         for i in range(t):
+            # all_actions.append(action)
             _, _, done, info = env.step(action)
             # print(env.agent.robot.get_qpos())
             if debug:
@@ -254,7 +265,7 @@ def solve(env, seed=None, debug=False, vis=False):
     # -------------------------------------------------------------------------- #
     # Reach
     # -------------------------------------------------------------------------- #
-    reach_pose = grasp_pose * sapien.Pose([0, 0, -0.1])
+    reach_pose = grasp_pose * sapien.Pose([0, 0, -0.09])
     plan = planner.plan_screw(reach_pose, env.agent.robot.get_qpos())
     execute_plan(plan, OPEN_GRIPPER_POS)
     # print_info('reach', env)
@@ -303,6 +314,9 @@ def solve(env, seed=None, debug=False, vis=False):
     # release
     execute_plan2(plan, OPEN_GRIPPER_POS, 10)
 
+    # all_actions = np.stack(all_actions)
+    # print(all_actions.shape, '....................')
+    # np.save('/home/zjia/Research/inter_seq/stackcube_mp_actions.npy', all_actions)
     return info
 
 

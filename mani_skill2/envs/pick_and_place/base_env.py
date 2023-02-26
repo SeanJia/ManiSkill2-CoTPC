@@ -93,9 +93,9 @@ class StationaryManipulationEnv(BaseEnv):
             self.agent.reset(qpos)
             self.agent.robot.set_pose(Pose([-0.562, 0, 0]))
         elif self.robot_uid == "xarm7":
-            qpos = np.array(
-                [0.009281, 0.3754012, 0.02281073, 1.0904256, 
-                -0.02396192, 0.8235, -1.575119, 0., 0.]
+            qpos = np.array([
+                0.01307754, -0.0295222, -0.00662482, 0.82727189, 
+                -0.0146605, 0.96484213, -1.60784514, 0., 0.]
             )
             qpos[:-2] += self._episode_rng.normal(
                 0, self.robot_init_qpos_noise, len(qpos) - 2
@@ -155,5 +155,6 @@ class StationaryManipulationEnv(BaseEnv):
 
     def _get_obs_agent(self):
         obs = self.agent.get_proprioception()
+        # del obs['qvel']  # Ignore qvel for sim2real transfer.
         obs["base_pose"] = vectorize_pose(self.agent.robot.pose)
         return obs

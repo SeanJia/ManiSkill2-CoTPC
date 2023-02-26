@@ -111,14 +111,16 @@ def main():
 if __name__ == "__main__":
     main()
 
-# python record_stack_cube.py --no-video --parallel=10 --num-episodes=50 \
-#   --record-dir=/home/zjia/Research/inter_seq/generated_demos/stack_cube
+"""
+python record_stack_cube.py --no-video --parallel=10 --num-episodes=50 \
+  --record-dir=/home/zjia/Research/inter_seq/generated_demos/stackcube
 
-# python trajectory/merge_trajectory.py \
-#     --input-dirs=/home/zjia/Research/inter_seq/generated_demos/stack_cube \
-#     --output-path=/home/zjia/Research/inter_seq/generated_demos/stack_cube/trajectory.h5 \
-#     --pattern=*/*.h5
+python trajectory/merge_trajectory.py \
+    --input-dirs=/home/zjia/Research/inter_seq/generated_demos/stackcube \
+    --output-path=/home/zjia/Research/inter_seq/generated_demos/stackcube/trajectory.h5 \
+    --pattern=*/*.h5
 
-# python trajectory/replay_trajectory.py \
-#     --traj-path /home/zjia/Research/inter_seq/generated_demos/stack_cube/trajectory.h5 \
-# 	--save-traj --target-control-mode pd_joint_delta_pos --obs-mode state --num-procs 10
+python trajectory/replay_trajectory.py \
+    --traj-path /home/zjia/Research/inter_seq/generated_demos/stackcube/trajectory.h5 \
+	--save-traj --target-control-mode pd_joint_delta_pos --obs-mode state --num-procs 10
+"""

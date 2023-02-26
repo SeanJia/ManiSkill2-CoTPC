@@ -111,14 +111,16 @@ def main():
 if __name__ == "__main__":
     main()
 
-# python record_peg_insertion_side.py --no-video --parallel=10 --num-episodes=50 \
-#   --record-dir=/home/zjia/Research/inter_seq/generated_demos/peg_insertion
+"""
+python record_peg_insertion_side.py --no-video --parallel=10 --num-episodes=50 \
+  --record-dir=/home/zjia/Research/inter_seq/generated_demos/peginsertion
 
-# python trajectory/merge_trajectory.py \
-#     --input-dirs=/home/zjia/Research/inter_seq/generated_demos/peg_insertion \
-#     --output-path=/home/zjia/Research/inter_seq/generated_demos/peg_insertion/trajectory.h5 \
-#     --pattern=*/*.h5
+python trajectory/merge_trajectory.py \
+    --input-dirs=/home/zjia/Research/inter_seq/generated_demos/peginsertion \
+    --output-path=/home/zjia/Research/inter_seq/generated_demos/peginsertion/trajectory.h5 \
+    --pattern=*/*.h5
 
-# python trajectory/replay_trajectory.py \
-#     --traj-path /home/zjia/Research/inter_seq/generated_demos/peg_insertion/trajectory.h5 \
-# 	--save-traj --target-control-mode pd_joint_delta_pos --obs-mode state --num-procs 10
+python trajectory/replay_trajectory.py \
+    --traj-path /home/zjia/Research/inter_seq/generated_demos/peginsertion/trajectory.h5 \
+	--save-traj --target-control-mode pd_joint_delta_pos --obs-mode state --num-procs 10
+"""
