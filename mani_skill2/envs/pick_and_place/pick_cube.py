@@ -74,23 +74,14 @@ class PickCubeEnv(StationaryManipulationEnv):
         return np.max(np.abs(qvel)) <= thresh
 
     def evaluate(self, **kwargs):
-        is_grasped = self.agent.check_grasp(self.peg, max_angle=20)  
-
-        pre_inserted = False
-        if is_grasped:
-            peg_head_wrt_goal = self.goal_pose.inv() * self.peg_head_pose
-            peg_head_wrt_goal_yz_dist = np.linalg.norm(peg_head_wrt_goal.p[1:])
-            peg_wrt_goal = self.goal_pose.inv() * self.peg.pose
-            peg_wrt_goal_yz_dist = np.linalg.norm(peg_wrt_goal.p[1:])
-            if peg_head_wrt_goal_yz_dist < 0.01 and peg_wrt_goal_yz_dist < 0.01:
-                pre_inserted = True
-
-        success, peg_head_pos_at_hole = self.has_peg_inserted()
+        is_obj_placed = self.check_obj_placed()
+        is_robot_static = self.check_robot_static()
+        is_grasped = self.agent.check_grasp(self.obj, max_angle=30)
         return dict(
-            success=success, 
-            pre_inserted=pre_inserted,
-            peg_head_pos_at_hole=peg_head_pos_at_hole,
+            is_obj_placed=is_obj_placed,
+            is_robot_static=is_robot_static,
             is_grasped=is_grasped,
+            success=is_obj_placed and is_robot_static,
         )
 
     def compute_dense_reward(self, info, **kwargs):
