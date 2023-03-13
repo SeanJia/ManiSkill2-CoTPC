@@ -317,12 +317,13 @@ class TurnFaucetEnv(TurnFaucetBaseEnv):
         # The angle to go
         self.target_angle_diff = self.target_angle - self.init_angle
 
-    def _get_obs_extra(self) -> OrderedDict:
+    def _get_obs_extra(self):
         obs = OrderedDict(
             tcp_pose=vectorize_pose(self.tcp.pose),
             target_angle_diff=self.target_angle_diff,
             target_joint_axis=self.target_joint_axis,
             target_link_pos=self.target_link_pos,
+            curr_target_link_pos=self._get_curr_target_link_pos(),  # Added code.
         )
         if self._obs_mode in ["state", "state_dict"]:
             angle_dist = self.target_angle - self.current_angle
@@ -333,9 +334,20 @@ class TurnFaucetEnv(TurnFaucetBaseEnv):
     def current_angle(self):
         return self.faucet.get_qpos()[self.target_joint_idx]
 
+    def _get_curr_target_link_pos(self):
+        """
+        Access the current pose of the target link (i.e., the handle of the faucet).
+        """
+        cmass_pose = self.target_link.pose * self.target_link.cmass_local_pose
+        return cmass_pose.p
+
     def evaluate(self, **kwargs):
+        is_contacted = any(self.agent.check_contact_fingers(self.target_link))
         angle_dist = self.target_angle - self.current_angle
-        return dict(success=angle_dist < 0, angle_dist=angle_dist)
+        return dict(
+            success=angle_dist < 0, 
+            angle_dist=angle_dist,
+            is_contacted=is_contacted)
 
     def _compute_distance(self):
         """Compute the distance between the tap and robot fingers."""
