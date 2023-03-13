@@ -172,9 +172,25 @@ class PegInsertionSideEnv(StationaryManipulationEnv):
         )
         return (x_flag and y_flag and z_flag), peg_head_pos_at_hole
 
-    def evaluate(self, **kwargs) -> dict:
+    def evaluate(self, **kwargs):
+        is_grasped = self.agent.check_grasp(self.peg, max_angle=20)  
+
+        pre_inserted = False
+        if is_grasped:
+            peg_head_wrt_goal = self.goal_pose.inv() * self.peg_head_pose
+            peg_head_wrt_goal_yz_dist = np.linalg.norm(peg_head_wrt_goal.p[1:])
+            peg_wrt_goal = self.goal_pose.inv() * self.peg.pose
+            peg_wrt_goal_yz_dist = np.linalg.norm(peg_wrt_goal.p[1:])
+            if peg_head_wrt_goal_yz_dist < 0.01 and peg_wrt_goal_yz_dist < 0.01:
+                pre_inserted = True
+
         success, peg_head_pos_at_hole = self.has_peg_inserted()
-        return dict(success=success, peg_head_pos_at_hole=peg_head_pos_at_hole)
+        return dict(
+            success=success, 
+            pre_inserted=pre_inserted,
+            peg_head_pos_at_hole=peg_head_pos_at_hole,
+            is_grasped=is_grasped,
+        )
 
     def compute_dense_reward(self, info, **kwargs):
         reward = 0.0
