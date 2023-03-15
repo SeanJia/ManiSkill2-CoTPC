@@ -327,7 +327,6 @@ class RecordEpisode(gym.Wrapper):
         # Dump
         group.create_dataset("actions", data=actions, dtype=np.float32)
         group.create_dataset("success", data=dones, dtype=bool)
-        group.create_dataset("rewards", data=rewards, dtype=np.float32)
         group.create_dataset("infos", data=infos, dtype=bool)
         if self.init_state_only:
             group.create_dataset("env_init_state", data=env_states[0], dtype=np.float32)
